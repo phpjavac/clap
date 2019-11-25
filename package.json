@@ -1,0 +1,19 @@
+{
+  "name": "clap",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1",
+    "mysql": "^2.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.7.1",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^2.0.1"
+  }
+}

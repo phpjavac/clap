@@ -1,16 +1,24 @@
-const {query} = require('../../utils/sql');
-const {md5, secretKey} = require('../../utils/constant');
+const {
+  query,
+} = require('../../utils/sql');
+const {
+  md5,
+  secretKey,
+} = require('../../utils/constant');
 const jwt = require('jsonwebtoken');
 /**
-   * @param {user用户接口} ctx
-   */
+ * @param {user用户接口} ctx
+ */
 class UserController {
   /**
    *
    * @param {登录接口} ctx
    */
   async login(ctx) {
-    const {code, password} = ctx.request.body;
+    const {
+      code,
+      password,
+    } = ctx.request.body;
     if (!code || !password) {
       return ctx.throw(400, {
         message: '用户或密码不能为空!',
@@ -57,7 +65,11 @@ class UserController {
    * @param {sfc} ctx
    */
   async register(ctx) {
-    const {code, name, role} = ctx.request.body;
+    const {
+      code,
+      name,
+      role,
+    } = ctx.request.body;
     if (!code || !name) {
       return ctx.throw(400, {
         message: '账号或姓名不能为空!',
@@ -73,8 +85,8 @@ class UserController {
     const ADDSQL = 'INSERT INTO user_auth(usercode,password) VALUES(?,?)';
     const addSqlParams = [code, md5(`123456`)];
     await query(ADDSQL, addSqlParams).then(async (res) => {
-      const ADDUSERSQL = 'INSERT INTO user(code,name,role,headImgPath,disable)VALUES(?,?,?,?,?)';
-      const addUserSqlParams = [code, name, role, 'static/img/avatar.png', 0];
+      const ADDUSERSQL = 'INSERT INTO user(code,name,role,headImgPath,disable,accessionTime)VALUES(?,?,?,?,?,?)';
+      const addUserSqlParams = [code, name, role, 'static/img/avatar.png', 0, new Date().getTime()];
       await query(ADDUSERSQL, addUserSqlParams);
       ctx.body = {
         success: true,
@@ -91,29 +103,84 @@ class UserController {
    * @param {sfc} ctx
    */
   async list(ctx) {
-    const QUERYSQL = 'select * from user';
-    await query(QUERYSQL).then((res)=>{
-      console.log(res);
+    const role = ctx.query.role || '*';
+    let pageNo = +ctx.query.pageNo || 1;
+    const pageSize = +ctx.query.pageSize || 10;
+    let querySql = '';
+    if (role) {
+      querySql = 'select * from user where role = ? limit ?,?';
+    } else {
+      querySql = 'select * from user';
+    }
+    pageNo = (pageNo - 1) * pageSize;
+    await query(querySql, [role, pageNo, pageSize]).then(async (res) => {
+      const queryCountSql = 'SELECT COUNT(*) FROM user where role = ?';
+      await query(queryCountSql, [role]).then((COUNT) => {
+        const data = {
+          list: res,
+          totalRecord: COUNT[0]['COUNT(*)'],
+        };
+        ctx.body = {
+          success: true,
+          data: data,
+        };
+      });
+    });
+  }
+  /**
+   * 取得用户详细信息
+   * @param {cfx} ctx
+   */
+  async userInfo(ctx) {
+    const token = ctx.header.authorization.replace('Bearer ', '');
+    const code = jwt.verify(token, secretKey).code;
+    const QUERYSQL = 'select * from user where code = ?';
+    await query(QUERYSQL, [code]).then((res) => {
+      const data = res[0];
       ctx.body = {
         success: true,
-        data: res,
+        data: data,
       };
     });
   }
   /**
- * 取得用户详细信息
- * @param {cfx} ctx
- */
-  async userInfo(ctx) {
-    console.log(ctx.params);
-    const QUERYSQL = 'select * from user where code = ?';
-    await query(QUERYSQL).then((res)=>{
-      console.log(res);
+   * 更新用户信息
+   * @param {cfx} ctx
+   */
+  async put(ctx) {
+    console.log(ctx.request.body);
+    const {name, code} = ctx.request.body;
+    const UPDATESQL = 'UPDATE user SET name = ? WHERE code = ?';
+    await query(UPDATESQL, [name, code]).then((res)=>{
       ctx.body = {
         success: true,
         data: res,
       };
+    }).catch((err)=>{
+      return ctx.throw(400, {
+        message: err,
+      });
     });
+  }
+  /**
+   * 删除用户
+   * @param {cfx} ctx
+   */
+  async deluser(ctx) {
+    console.log(ctx.query.code);
+    const code = ctx.query.code;
+    const deleteSql = 'delete user,user_auth from user,user_auth where user.code=user_auth.usercode and user.code = ?';
+    await query(deleteSql, [code]).then((res)=>{
+      ctx.body = {
+        success: true,
+        data: res,
+      };
+    })
+        .catch((err)=>{
+          return ctx.throw(400, {
+            message: err,
+          });
+        });
   }
 }
 module.exports = new UserController();

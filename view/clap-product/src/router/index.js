@@ -13,7 +13,6 @@ const routes = [
   },
   {
     path: "/teacher",
-    name: "teacher",
     component: () =>
       import(/* webpackChunkName: "teacher" */ "../views/teacher/index.vue"),
     children: [

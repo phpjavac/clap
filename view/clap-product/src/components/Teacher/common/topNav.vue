@@ -1,5 +1,4 @@
 <template lang="pug">
-  .teacher-home
     .top-nav
       .nav-box.clear-fix
         .left-nav.clear-fix
@@ -17,7 +16,7 @@
                   .logout(@click="go('注销')") 注销
 </template>
 <script>
-// eslint-disable-next-line import/no-unresolved
+import { Message } from "view-design";
 import MyBus from "@/utils/bus";
 export default {
   data() {
@@ -26,7 +25,7 @@ export default {
       isShowMenu: false,
       pageIndex: 0,
       leftNav: [
-        { name: "用户管理", path: "/teacher/userlist" },
+        { name: "用户管理", path: "/teacher" },
         { name: "班级管理", path: "/teacher/classlist" },
         { name: "实验管理", path: "/teacher/casemanage" },
         { name: "自定义案例", path: "/teacher/customcase" }
@@ -40,7 +39,7 @@ export default {
   watch: {
     $route(to) {
       switch (to.path) {
-        case "/teacher/userlist":
+        case "/teacher":
           if (localStorage.role === "admin") {
             this.pageIndex = 0;
           }
@@ -101,13 +100,13 @@ export default {
           if (res.data.success) {
             //
             this.userInfo.name = res.data.data.name;
-            this.userInfo.src = res.data.data.headImagePath;
+            this.userInfo.src = res.data.data.headImgPath;
           } else {
-            this.$Message.error(res.data.message);
+            Message.error(res.data.message);
           }
         })
         .catch(() => {
-          this.$Message.error("服务器异常");
+          Message.error("服务器异常");
         });
     }
   },
@@ -118,7 +117,7 @@ export default {
   mounted() {
     MyBus.$on("msg", e => {
       this.userInfo.name = e.name;
-      this.userInfo.src = e.headImagePath;
+      this.userInfo.src = e.headImgPath;
     });
     if (localStorage.role !== "admin") {
       this.leftNav.splice(0, 1);

@@ -1,0 +1,24 @@
+{
+    "importCost.debug": true,
+    "path-autocomplete.pathMappings": {
+        "@": "${folder}/src",
+        "@s@": "${folder}/src/components/Student"
+    },
+    "stylusSupremacy.insertColons": false,
+    "stylusSupremacy.insertSemicolons": false,
+    "stylusSupremacy.insertBraces": false,
+    "stylusSupremacy.insertNewLineAroundBlocks": false,
+    "stylusSupremacy.insertNewLineAroundImports": false,
+    "workbench.activityBar.visible": true,
+    "breadcrumbs.enabled": true,
+    "terminal.integrated.rendererType": "dom",
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        {
+            "language": "vue",
+            "autoFix": true
+        }
+    ],
+    "eslint.autoFixOnSave": true
+}

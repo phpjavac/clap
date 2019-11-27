@@ -26,6 +26,8 @@ api.$http.interceptors.response.use(
           status,
           errorText
         };
+        console.log(status);
+
         switch (status) {
           case 401:
             Message.info({

@@ -25,7 +25,7 @@ export default {
       isShowMenu: false,
       pageIndex: 0,
       leftNav: [
-        { name: "用户管理", path: "/teacher" },
+        { name: "用户管理", path: "/teacher/userlist" },
         { name: "班级管理", path: "/teacher/classlist" },
         { name: "实验管理", path: "/teacher/casemanage" },
         { name: "自定义案例", path: "/teacher/customcase" }
@@ -39,7 +39,7 @@ export default {
   watch: {
     $route(to) {
       switch (to.path) {
-        case "/teacher":
+        case "/teacher/userlist":
           if (localStorage.role === "admin") {
             this.pageIndex = 0;
           }

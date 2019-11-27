@@ -44,5 +44,33 @@ class Api {
       }
     });
   }
+
+  /**
+   * 班级管理模块
+   */
+  addClass(data) {
+    return this.$http.post("./api/class/addClass", data);
+  }
+  /**
+   * 查询所教班级
+   */
+  getClassList(pageNo, pageSize) {
+    return this.$http.get("./api/class/classList", {
+      params: {
+        pageNo,
+        pageSize
+      }
+    });
+  }
+  /**
+   * 删除班级
+   */
+  delClass(id) {
+    return this.$http.delete("./api/class/delClass", {
+      params: {
+        id
+      }
+    });
+  }
 }
 export default Api;

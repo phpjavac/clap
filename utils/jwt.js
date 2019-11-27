@@ -1,4 +1,4 @@
-const jwtArr = ['/api/user/login'];
+const jwtArr = ['/api/user/login', '/api/user/uploadUser'];
 module.exports = function(app) {
   const koaJwt = require('koa-jwt');
   const {secretKey} = require('./constant');

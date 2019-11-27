@@ -17,11 +17,19 @@ const routes = [
       import(/* webpackChunkName: "teacher" */ "../views/teacher/index.vue"),
     children: [
       {
-        path: "/",
+        path: "/teacher/userlist",
         name: "userlist",
         component: () =>
           import(
             /* webpackChunkName: "teacher" */ "../views/teacher/managingUser/index.vue"
+          )
+      },
+      {
+        path: "/teacher/classlist",
+        name: "classlist",
+        component: () =>
+          import(
+            /* webpackChunkName: "teacher" */ "../views/teacher/managingClass/index.vue"
           )
       }
     ]

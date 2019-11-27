@@ -6,6 +6,10 @@ const {
   secretKey,
 } = require('../../utils/constant');
 const jwt = require('jsonwebtoken');
+const xlsx = require('node-xlsx')
+const fs = require('fs');
+const path = require('path');
+
 /**
  * @param {user用户接口} ctx
  */
@@ -62,6 +66,7 @@ class UserController {
   }
   /**
    * 注册接口
+   * POST
    * @param {sfc} ctx
    */
   async register(ctx) {
@@ -100,12 +105,13 @@ class UserController {
   }
   /**
    * 查询所有用户列表
+   * GET
    * @param {sfc} ctx
    */
   async list(ctx) {
     const role = ctx.query.role || '*';
     let pageNo = +ctx.query.pageNo || 1;
-    const pageSize = +ctx.query.pageSize || 10;
+    const pageSize = +ctx.query.pageSize || 99999;
     let querySql = '';
     if (role) {
       querySql = 'select * from user where role = ? limit ?,?';
@@ -181,6 +187,34 @@ class UserController {
             message: err,
           });
         });
+  }
+  /**
+   * 上传学生
+   * @param {ctx} ctx
+   */
+  async uploadUser(ctx) {
+    const file = ctx.request.files.file;
+    const reader = fs.createReadStream(file.path);
+    const filePath = path.join(__dirname, 'upload/') + `/${file.name}`;
+    // 创建可写流
+    const upStream = fs.createWriteStream(filePath);
+    // 可读流通过管道写入可写流
+    console.log(upStream)
+    reader.pipe(upStream);
+    const sheetList = xlsx.parse(filePath);
+    sheetList.forEach((sheet) => {
+      console.log(sheet);
+      
+    })
+    return ctx.body = {
+      res: filePath,
+    };
+    // const workbook = await utils.getFile(upStream);
+    // const sheetNames = workbook.SheetNames;
+    // console.log(sheetNames);
+    // ctx.body = {
+    //   success: true,
+    // };
   }
 }
 module.exports = new UserController();

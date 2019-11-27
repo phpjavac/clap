@@ -71,7 +71,13 @@ export default {
           this.$http.login(this.loginForm).then(res => {
             localStorage.token = res.data.data.token;
             localStorage.role = res.data.data.role;
+            localStorage.code = res.data.data.code;
             Message.success("登陆成功");
+            const path = {
+              admin: "/teacher/userlist",
+              teacher: "./teacher/classlist"
+            };
+            this.$router.push(path[res.data.data.role]);
           });
         }
       });

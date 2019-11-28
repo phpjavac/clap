@@ -1,25 +1,21 @@
+const xlsx = require('node-xlsx');
 /**
  * 一些工具类
  */
 class Utils {
   /**
-     * @return {promise}
+     * @return {Promise}
      * @param {文件流} stream
+     * @param {文件路径} filePath
      */
-  getFile(stream) {
-    return new Promise(function(result) {
-      console.log('开始');
-      console.log(stream);
-      const buffers = [];
-      stream.on('data', function(data) {
-        console.log('正在读');
-        buffers.push(data);
-      });
-      stream.on('end', function() {
-        const buffer = Buffer.concat(buffers);
-        const workbook = xlsx.read(buffer, {type: 'buffer'});
-        console.log('读取结束');
-        result(workbook);
+  getFile(stream, filePath) {
+    return new Promise((result, reject) =>{
+      stream.on('finish', function(err) {
+        if (err) {
+          reject(new Error(err));
+        }
+        const sheetList = xlsx.parse(filePath, {type: 'file'});
+        result(sheetList[0].data);
       });
     });
   }

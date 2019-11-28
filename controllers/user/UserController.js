@@ -6,7 +6,8 @@ const {
   secretKey,
 } = require('../../utils/constant');
 const jwt = require('jsonwebtoken');
-const xlsx = require('node-xlsx')
+const utils = require('../../utils/Utils');
+// const userUtils = require('../../utils/user/UserUtils');
 const fs = require('fs');
 const path = require('path');
 
@@ -90,8 +91,8 @@ class UserController {
     const ADDSQL = 'INSERT INTO user_auth(usercode,password) VALUES(?,?)';
     const addSqlParams = [code, md5(`123456`)];
     await query(ADDSQL, addSqlParams).then(async (res) => {
-      const ADDUSERSQL = 'INSERT INTO user(code,name,role,headImgPath,disable,accessionTime)VALUES(?,?,?,?,?,?)';
-      const addUserSqlParams = [code, name, role, 'static/img/avatar.png', 0, new Date().getTime()];
+      const ADDUSERSQL = 'INSERT INTO user(code,name,role,headImgPath,disable,accessionTime,classid)VALUES(?,?,?,?,?,?,?)';
+      const addUserSqlParams = [code, name, role, 'static/img/avatar.png', '0', new Date().getTime().toString(), 'null'];
       await query(ADDUSERSQL, addUserSqlParams);
       ctx.body = {
         success: true,
@@ -157,12 +158,12 @@ class UserController {
     console.log(ctx.request.body);
     const {name, code} = ctx.request.body;
     const UPDATESQL = 'UPDATE user SET name = ? WHERE code = ?';
-    await query(UPDATESQL, [name, code]).then((res)=>{
+    await query(UPDATESQL, [name, code]).then((res) => {
       ctx.body = {
         success: true,
         data: res,
       };
-    }).catch((err)=>{
+    }).catch((err) => {
       return ctx.throw(400, {
         message: err,
       });
@@ -175,14 +176,14 @@ class UserController {
   async deluser(ctx) {
     console.log(ctx.query.code);
     const code = ctx.query.code;
-    const deleteSql = 'delete user,user_auth from user,user_auth where user.code=user_auth.usercode and user.code = ?';
-    await query(deleteSql, [code]).then((res)=>{
+    const deleteSql = 'delete user_auth from user_auth where usercode = ?';
+    await query(deleteSql, [code]).then((res) => {
       ctx.body = {
         success: true,
         data: res,
       };
     })
-        .catch((err)=>{
+        .catch((err) => {
           return ctx.throw(400, {
             message: err,
           });
@@ -194,27 +195,45 @@ class UserController {
    */
   async uploadUser(ctx) {
     const file = ctx.request.files.file;
+    const classid = ctx.request.body.classId;
     const reader = fs.createReadStream(file.path);
-    const filePath = path.join(__dirname, 'upload/') + `/${file.name}`;
+    const filePath = path.join(__dirname, '../../upload/') + `${file.name}`;
     // 创建可写流
     const upStream = fs.createWriteStream(filePath);
     // 可读流通过管道写入可写流
-    console.log(upStream)
-    reader.pipe(upStream);
-    const sheetList = xlsx.parse(filePath);
-    sheetList.forEach((sheet) => {
-      console.log(sheet);
-      
-    })
-    return ctx.body = {
-      res: filePath,
-    };
-    // const workbook = await utils.getFile(upStream);
-    // const sheetNames = workbook.SheetNames;
-    // console.log(sheetNames);
-    // ctx.body = {
-    //   success: true,
-    // };
+    // console.log(upStream)
+    const stream = reader.pipe(upStream);
+    await utils.getFile(stream, filePath).then(async (data) => {
+      const codeList = [];
+      const addparams = [];
+      const adduserParams = [];
+      for (let i = 1; i < data.length; i++) {
+        const item = data[i];
+        codeList.push(item[0]);
+        const arr = `('${item[0]}', '${item[1]}', 'student', 'static/img/avatar.png', 0, '${new Date().getTime()}', '${classid}')`;
+        adduserParams.push([item[0], md5(`123456`)]);
+        addparams.push(arr);
+      }
+      let addUser = adduserParams.map((item)=>{
+        return `('${item[0]}','${item[1]}')`;
+      });
+      addUser = [...addUser].toString();
+      const addSql = `insert ignore into user_auth(usercode,password) VALUES${addUser};`;
+      await query(addSql).then(async (res)=>{
+        const addUserSql = `insert ignore into user(code,name,role,headImgPath,disable,accessionTime,classid) VALUES${addparams};`;
+        console.log(addUserSql);
+        await query(addUserSql).then((res1)=>{
+          ctx.body = {
+            success: true,
+            data: res1,
+          };
+        });
+      });
+    }).catch((err) => {
+      return ctx.throw(400, {
+        message: err,
+      });
+    });
   }
 }
 module.exports = new UserController();

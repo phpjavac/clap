@@ -15,6 +15,6 @@ module.exports = {
   },
   'rules': {
     "linebreak-style":0,
-    "max-len": ["error", 120],
+    "max-len": ["error", 140],
   },
 };

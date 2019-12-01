@@ -86,6 +86,25 @@ class ClassController {
           });
         });
   }
+  /**
+   * 修改班级信息
+   * PUT
+   * @param {ctx} ctx
+   */
+  async put(ctx) {
+    const {className, classDescribe, teacherCode, id} = ctx.request.body;
+    const UPDATESQL = 'UPDATE class SET className = ?,classDescribe=?,teacherCode=? WHERE id = ?';
+    await query(UPDATESQL, [className, classDescribe, teacherCode, id]).then((res) => {
+      ctx.body = {
+        success: true,
+        data: res,
+      };
+    }).catch((err) => {
+      return ctx.throw(400, {
+        message: err,
+      });
+    });
+  }
 }
 
 module.exports = new ClassController();

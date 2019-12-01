@@ -72,5 +72,11 @@ class Api {
       }
     });
   }
+  /**
+   * 更新班级信息
+   */
+  putClass(data) {
+    return this.$http.put("./api/class/put", data);
+  }
 }
 export default Api;

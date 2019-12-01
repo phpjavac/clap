@@ -177,10 +177,10 @@ export default {
           if (this.addClassForm.title === "编辑班级") {
             this.loading = true;
             this.$http
-              .putUser(this.addClassForm)
+              .putClass(this.addClassForm)
               .then(async () => {
                 await this.query();
-                Message.success("编辑用户成功!");
+                Message.success("编辑班级成功!");
                 this.addClass = false;
                 this.ResetForm();
                 this.loading = false;

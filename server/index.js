@@ -20,6 +20,8 @@ router
 router
     .post('/api/class/addClass', classctrl.addClass)
     .get('/api/class/classlist', classctrl.classList)
-    .delete('/api/class/delClass', classctrl.delClass);
+    .delete('/api/class/delClass', classctrl.delClass)
+    .put('/api/class/put', classctrl.put);
+
 
 module.exports = router;

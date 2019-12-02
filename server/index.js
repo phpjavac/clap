@@ -13,7 +13,9 @@ router
     .get('/api/user/userInfo', userctrl.userInfo)
     .put('/api/user/put', userctrl.put)
     .delete('/api/user/deluser', userctrl.deluser)
-    .post('/api/user/uploadUser', userctrl.uploadUser);
+    .post('/api/user/uploadUser', userctrl.uploadUser)
+    .get('/api/user/ClassStudentList', userctrl.ClassStudentList);
+
 /**
      * 班级模块
      */

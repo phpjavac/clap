@@ -78,5 +78,16 @@ class Api {
   putClass(data) {
     return this.$http.put("./api/class/put", data);
   }
+  /**
+   * 查询班级下学生
+   */
+
+  ClassStudentList(classId) {
+    return this.$http.get("./api/user/ClassStudentList", {
+      params: {
+        id: classId
+      }
+    });
+  }
 }
 export default Api;

@@ -3,13 +3,13 @@ div.user-list
     Card
         Table(border,:columns="columns",:data="classList")
             template(slot-scope="{ row, index }" slot="detailed")
-                Button(type="info" size="small" @click="remove(row)") 明细
+                Button(type="info" size="small" @click="showStudents(row)") 明细
             template(slot-scope="{ row, index }" slot="delete")
                 Button(type="error" size="small" @click="remove(row)") 删除
             template(slot-scope="{ row, index }" slot="edit")
                 Button(type="warning" size="small" style="margin-right: 5px" @click="edit(row)") 编辑
             template(slot-scope="{ row, index }" slot="import")
-                Upload(action="./api/user/uploadUser",:headers="headers",:data="uploadData")
+                Upload(action="./api/user/uploadUser",:headers="headers",:data="uploadData",:on-success="uploadSuccess",:show-upload-list="false")
                     Button(type="primary" size="small" style="margin-right: 5px" @click="importStudent(row)") 导入
             template(slot-scope="{ row, index }" slot="export")
                 Button(type="success" size="small" style="margin-right: 5px" @click="edit(row)") 导出
@@ -29,6 +29,12 @@ div.user-list
         div(slot="footer")
             Button(@click="canceladdClass('addClassForm')") 取消
             Button(type="primary",@click="handleSubmit('addClassForm')",:loading="loading") 确定
+    Modal(v-model="showStudent",title="学生明细",width="768",@on-visible-change="showStudentsChange")
+      Table(border,:columns="studentsColumns",:data="studentsList")
+            template(slot-scope="{ row, index }" slot="delete")
+                Button(type="error" size="small" @click="removeStudent(row)") 删除
+            template(slot-scope="{ row, index }" slot="edit")
+                Button(type="warning" size="small" style="margin-right: 5px" @click="editStudent(row)") 编辑
 </template>
 <script>
 import utils from "@/utils/tool";
@@ -95,6 +101,28 @@ export default {
         className: "",
         classDescribe: ""
       },
+      studentsColumns: [
+        {
+          title: "序号",
+          type: "index"
+        },
+        {
+          title: "账号",
+          key: "code"
+        },
+        {
+          title: "姓名",
+          key: "name"
+        },
+        {
+          title: "删除",
+          slot: "delete"
+        },
+        {
+          title: "编辑",
+          slot: "edit"
+        }
+      ],
       columns: [
         {
           title: "序号",
@@ -137,10 +165,32 @@ export default {
         pageNo: 1,
         pageSize: 10,
         totalRecord: 0
-      }
+      },
+      studentsList: [],
+      showStudent: false
     };
   },
   methods: {
+    showStudentsChange(val) {
+      if (!val) this.studentsList = [];
+    },
+    removeStudent() {},
+    editStudent() {},
+    /**
+     * 查看学生列表
+     */
+    showStudents(row) {
+      this.showStudent = true;
+      this.$http.ClassStudentList(row.id).then(res => {
+        this.studentsList = res.data.data.list;
+      });
+    },
+    /**
+     * 上传学生成功
+     */
+    uploadSuccess() {
+      Message.success("导入学生成功!");
+    },
     /**
      * 导入学生
      */

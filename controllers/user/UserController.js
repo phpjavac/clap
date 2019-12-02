@@ -155,7 +155,6 @@ class UserController {
    * @param {cfx} ctx
    */
   async put(ctx) {
-    console.log(ctx.request.body);
     const {name, code} = ctx.request.body;
     const UPDATESQL = 'UPDATE user SET name = ? WHERE code = ?';
     await query(UPDATESQL, [name, code]).then((res) => {
@@ -174,7 +173,6 @@ class UserController {
    * @param {cfx} ctx
    */
   async deluser(ctx) {
-    console.log(ctx.query.code);
     const code = ctx.query.code;
     const deleteSql = 'delete user_auth from user_auth where usercode = ?';
     await query(deleteSql, [code]).then((res) => {
@@ -201,7 +199,6 @@ class UserController {
     // 创建可写流
     const upStream = fs.createWriteStream(filePath);
     // 可读流通过管道写入可写流
-    // console.log(upStream)
     const stream = reader.pipe(upStream);
     await utils.getFile(stream, filePath).then(async (data) => {
       const codeList = [];
@@ -221,7 +218,6 @@ class UserController {
       const addSql = `insert ignore into user_auth(usercode,password) VALUES${addUser};`;
       await query(addSql).then(async (res)=>{
         const addUserSql = `insert ignore into user(code,name,role,headImgPath,disable,accessionTime,classid) VALUES${addparams};`;
-        console.log(addUserSql);
         await query(addUserSql).then((res1)=>{
           ctx.body = {
             success: true,
@@ -233,6 +229,28 @@ class UserController {
       return ctx.throw(400, {
         message: err,
       });
+    });
+  }
+  /**
+   * 查询班级里所有学生
+   * @param {ctx} ctx
+   */
+  async ClassStudentList(ctx) {
+    const classId = ctx.query.id;
+    if (!classId) {
+      return ctx.throw(400, {
+        message: '班级id为空!',
+      });
+    }
+    const sql = 'select * from user where classid = ?';
+    await query(sql, [classId]).then((res)=>{
+      const data = {
+        list: res,
+      };
+      ctx.body = {
+        success: true,
+        data: data,
+      };
     });
   }
 }
